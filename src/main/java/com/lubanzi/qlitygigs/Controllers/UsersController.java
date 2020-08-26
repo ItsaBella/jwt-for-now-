@@ -4,6 +4,7 @@ import com.lubanzi.qlitygigs.Config.JwtUtil;
 import com.lubanzi.qlitygigs.Model.JwtRequest;
 import com.lubanzi.qlitygigs.Model.JwtResponse;
 import com.lubanzi.qlitygigs.Model.User;
+import com.lubanzi.qlitygigs.Model.UserRegistrationRequest;
 import com.lubanzi.qlitygigs.Repos.UsersRepo;
 import com.lubanzi.qlitygigs.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -24,6 +26,7 @@ import java.util.List;
  * interface.
  */
 @RestController
+@RequestMapping(value = "users/")
 public class UsersController {
     @Autowired
     private UserService userService;
@@ -34,6 +37,10 @@ public class UsersController {
     @Autowired
     private JwtUtil jwtUtil;
 
+
+    @Autowired
+    PasswordEncoder encoder;
+
     /**
      *
      * @param User object
@@ -41,7 +48,7 @@ public class UsersController {
      */
     @PostMapping("/createUser")
     public String createUser(@RequestBody User u) {
-        User nU = userService.create(u);
+        User nU = userService.save(u);
         return nU.toString();
     }
 
@@ -89,7 +96,20 @@ public class UsersController {
 
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public ResponseEntity<?> saveUser(@RequestBody UsersRepo user) throws Exception {
+    public ResponseEntity<User> saveUser(@RequestBody UserRegistrationRequest request) throws Exception {
+//        return ResponseEntity.ok(userService.save(user));
+        User user  =  new User();
+
+        user.setuName(request.getuName());
+        user.setuSurname(request.getuSurname());
+        user.setuPassword(encoder.encode(request.getuPassword()));
+        user.setId(request.getId());
+        user.setuEmail(request.getuEmail());
+//        user.setuCompany(request.getuCompany());
+        user.setuContactNumber(request.getuContactNumber());
+//        user.setuDOB(request.getuDOB());
+        user.setuType(request.getuType());
+
         return ResponseEntity.ok(userService.save(user));
 	}
 
@@ -112,6 +132,11 @@ public class UsersController {
     {
         userService.deleteUser(u);
         return "User deleted!";
+    }
+
+    @GetMapping(value = "/users")
+    ResponseEntity<List<User>> getUsers(){
+        return ResponseEntity.ok(userService.getAll());
     }
 
     @RequestMapping("/error")

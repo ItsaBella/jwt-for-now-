@@ -16,7 +16,7 @@ public class UserService implements UserDetailsService {
     @Autowired
     public UsersRepo uRepo;
 
-    public User create(User u) {
+    public User save(User u) {
         return uRepo.save(new User(u.getId(), u.getuName(), u.getuSurname(), u.getuEmail(), u.getuPassword(),
                 u.getuContactNumber(), u.getuType(), u.getuDOB(), u.getuCompany(), u.getuCountry()));
     }
@@ -49,8 +49,4 @@ public class UserService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(user.getuEmail(), user.getuPassword(),
                 new ArrayList<>());
     }
-
-	public Object save(UsersRepo user) {
-		return null;
-	}
 }
